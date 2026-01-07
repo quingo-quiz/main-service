@@ -46,4 +46,25 @@ jobs:
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:latest
+          ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:{{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Setup kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    
+    - name: Setup kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+    
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl set image deployment/main-service \
+          main-service=${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
      
