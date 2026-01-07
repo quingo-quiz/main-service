@@ -67,5 +67,5 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         kubectl set image deployment/quingo-main-service-deployment \
-          main-service=${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
+          main-service-container=${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
      
