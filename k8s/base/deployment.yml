@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quingo-main-service-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quingo-main-service
+  template:
+    metadata:
+      labels:
+        app: quingo-main-service
+    spec:
+      containers:
+        - name: main-service-container
+          image: artem5252/quingo-main-service:latest
+          ports:
+            - containerPort: 8080
