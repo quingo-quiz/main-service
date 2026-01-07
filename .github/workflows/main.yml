@@ -46,7 +46,7 @@ jobs:
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:latest
-          ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:{{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
 
   deploy:
     needs: build-and-push
