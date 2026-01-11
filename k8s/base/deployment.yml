@@ -31,5 +31,10 @@ spec:
                 secretKeyRef:
                   name: main-service-secret
                   key: DB_PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: DB_HOST
           ports:
             - containerPort: 8080
