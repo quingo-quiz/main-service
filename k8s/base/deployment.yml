@@ -15,5 +15,21 @@ spec:
       containers:
         - name: main-service-container
           image: artem5252/quingo-main-service:latest
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: DB_PASSWORD
           ports:
             - containerPort: 8080
