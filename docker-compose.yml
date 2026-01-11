@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    shm_size: 128mb
+    networks:
+      main-service-network:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  main-service:
+    build:
+      context: .
+    container_name: main-service
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    networks:
+      main-service-network:
+
+
+
+networks:
+  main-service-network:
