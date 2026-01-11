@@ -30,7 +30,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: main-service-secret
-                  key: DB_PASSWORD
+                  key: DB_NAME
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
