@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.3.21"
     kotlin("plugin.allopen") version "2.3.21"
+    id("com.google.devtools.ksp") version "2.3.5"
     id("io.quarkus")
 }
 
@@ -18,6 +19,8 @@ dependencies {
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-hibernate-validator")
+    implementation("io.mcarle:konvert-api:4.4.0")
+    ksp("io.mcarle:konvert:4.4.0")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-config-yaml")

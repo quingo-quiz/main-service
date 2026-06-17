@@ -11,7 +11,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import org.jboss.resteasy.reactive.RestResponse
+import tech.arhr.quingo.api.rest.mappers.QuizMapperImpl
 import tech.arhr.quingo.api.rest.models.SuccessResponse
 import tech.arhr.quingo.api.rest.models.quiz.CreateQuizRequest
 import tech.arhr.quingo.api.rest.models.quiz.Quiz
@@ -19,63 +21,87 @@ import tech.arhr.quingo.api.rest.models.quiz.QuizSummary
 import tech.arhr.quingo.api.rest.models.quiz.SaveDraftRequest
 import tech.arhr.quingo.api.rest.models.quiz.UpdateQuizRequest
 import tech.arhr.quingo.api.security.CurrentUser
+import tech.arhr.quingo.service.QuizService
+import java.time.Instant
 import java.util.UUID
 
-/** REST-слой управления квизами. Владелец берётся из [CurrentUser]. */
 @Path("/quizzes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class QuizResource(private val currentUser: CurrentUser) {
+class QuizResource(
+    private val currentUser: CurrentUser,
+    private val quizService: QuizService,
+) {
 
-    /** Список квизов владельца. */
     @GET
-    fun list(): RestResponse<SuccessResponse<List<QuizSummary>>> =
-        TODO()
+    fun list(): RestResponse<SuccessResponse<List<QuizSummary>>> {
+        val data = quizService.listSummaries(currentUser.id).map { QuizMapperImpl.toApi(it) }
+        return ok(data)
+    }
 
-    /** Создать квиз. */
     @POST
-    fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.create(currentUser.id, QuizMapperImpl.toDto(request))
+        return created(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Получить квиз целиком. */
     @GET
     @Path("/{id}")
-    fun get(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun get(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.get(currentUser.id, id)
+        return ok(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Изменить видимость квиза. */
     @PATCH
     @Path("/{id}")
-    fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.changeVisibility(currentUser.id, id, QuizMapperImpl.toDomain(request.visibility))
+        return ok(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Удалить квиз. */
     @DELETE
     @Path("/{id}")
-    fun remove(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> =
-        TODO()
+    fun remove(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> {
+        quizService.delete(currentUser.id, id)
+        return empty()
+    }
 
-    /** Создать черновик для опубликованного квиза. */
     @POST
     @Path("/{id}/draft")
-    fun startEditing(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun startEditing(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.startEditing(currentUser.id, id)
+        return created(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Сохранить черновик. */
     @PUT
     @Path("/{id}/draft")
-    fun saveDraft(@PathParam("id") id: UUID, @Valid request: SaveDraftRequest): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun saveDraft(@PathParam("id") id: UUID, @Valid request: SaveDraftRequest): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.saveDraft(currentUser.id, id, QuizMapperImpl.toDto(request))
+        return ok(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Опубликовать черновик. */
     @POST
     @Path("/{id}/publish")
-    fun publish(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
-        TODO()
+    fun publish(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.publish(currentUser.id, id)
+        return ok(QuizMapperImpl.toApi(quiz))
+    }
 
-    /** Удалить черновик. */
     @DELETE
     @Path("/{id}/draft")
-    fun discardDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> =
-        TODO()
+    fun discardDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> {
+        quizService.discardDraft(currentUser.id, id)
+        return empty()
+    }
+
+    private fun <T> ok(data: T): RestResponse<SuccessResponse<T>> = build(Response.Status.OK, data)
+
+    private fun <T> created(data: T): RestResponse<SuccessResponse<T>> = build(Response.Status.CREATED, data)
+
+    private fun empty(): RestResponse<SuccessResponse<Unit>> = build(Response.Status.OK, null)
+
+    private fun <T> build(status: Response.Status, data: T?): RestResponse<SuccessResponse<T>> {
+        val body = SuccessResponse.of(status, data, Instant.now())
+        return RestResponse.ResponseBuilder.create<SuccessResponse<T>>(status.statusCode).entity(body).build()
+    }
 }
