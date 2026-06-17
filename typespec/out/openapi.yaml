@@ -1,0 +1,843 @@
+openapi: 3.0.0
+info:
+  title: Main Service
+  version: 0.0.0
+tags:
+  - name: Quiz
+  - name: Draft
+paths:
+  /quizzes:
+    get:
+      operationId: QuizRoutes_list
+      summary: Список моих квизов
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuizSummary'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Quiz
+    post:
+      operationId: QuizRoutes_create
+      summary: Создать квиз
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Quiz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuizRequest'
+  /quizzes/{id}:
+    get:
+      operationId: QuizRoutes_get
+      summary: Получить квиз целиком
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Quiz
+    patch:
+      operationId: QuizRoutes_update
+      summary: Изменить мета-данные квиза
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Quiz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateQuizRequest'
+    delete:
+      operationId: QuizRoutes_remove
+      summary: Удалить квиз
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    nullable: true
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Quiz
+  /quizzes/{id}/draft:
+    post:
+      operationId: QuizRoutes_startEditing
+      summary: Создать черновик для опубликованного квиза.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Draft
+    put:
+      operationId: QuizRoutes_saveDraft
+      summary: Сохранить черновик.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveDraftRequest'
+    delete:
+      operationId: QuizRoutes_discardDraft
+      summary: Удалить черновик полностью.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    nullable: true
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Draft
+  /quizzes/{id}/publish:
+    post:
+      operationId: QuizRoutes_publish
+      summary: Опубликовать черновик. Строгая валидация содержимого
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Quiz'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Draft
+components:
+  schemas:
+    Card:
+      type: object
+      required:
+        - id
+        - position
+        - type
+        - questionText
+        - timerSeconds
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+          description: ID карточки
+        position:
+          type: integer
+          format: int32
+          description: Порядковый номер в квизе
+        type:
+          $ref: '#/components/schemas/CardType'
+        questionText:
+          type: string
+        timerSeconds:
+          type: integer
+          format: int32
+          description: Время на ответ в секундах
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardOption'
+          description: Варианты ответа. Присутствует только для SINGLE_CHOICE / MULTIPLE_CHOICE
+        acceptedTexts:
+          type: array
+          items:
+            type: string
+          description: Допустимые ответы. Присутствует только для TEXT_INPUT
+      description: Карточка внутри квиза
+    CardInput:
+      type: object
+      required:
+        - type
+        - questionText
+        - timerSeconds
+      properties:
+        type:
+          $ref: '#/components/schemas/CardType'
+        questionText:
+          type: string
+        timerSeconds:
+          type: integer
+          format: int32
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardOptionInput'
+          description: Для SINGLE_CHOICE / MULTIPLE_CHOICE
+        acceptedTexts:
+          type: array
+          items:
+            type: string
+          description: Для TEXT_INPUT
+      description: |-
+        Карточка в запросе сохранения черновика.
+        Клиент НЕ присылает id/position — порядок определяется индексом в массиве,
+        id назначает сервер.
+    CardOption:
+      type: object
+      required:
+        - id
+        - text
+        - isCorrect
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: ID варианта ответа внутри карточки
+        text:
+          type: string
+        isCorrect:
+          type: boolean
+      description: Вариант ответа карточки (для SINGLE_CHOICE / MULTIPLE_CHOICE)
+    CardOptionInput:
+      type: object
+      required:
+        - text
+        - isCorrect
+      properties:
+        text:
+          type: string
+        isCorrect:
+          type: boolean
+      description: Вариант ответа в запросе сохранения черновика.
+    CardType:
+      type: string
+      enum:
+        - SINGLE_CHOICE
+        - MULTIPLE_CHOICE
+        - TEXT_INPUT
+      description: Тип карточки
+    CreateQuizRequest:
+      type: object
+      required:
+        - title
+        - visibility
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        visibility:
+          $ref: '#/components/schemas/Visibility'
+      description: Создание квиза
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - statusMessage
+        - message
+        - path
+        - method
+        - timestamp
+      properties:
+        status:
+          type: integer
+          format: int32
+        statusMessage:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string
+        rejectedValues:
+          type: object
+          additionalProperties: {}
+        details:
+          type: object
+          additionalProperties: {}
+    Quiz:
+      type: object
+      required:
+        - id
+        - ownerId
+        - visibility
+        - status
+        - draft
+        - snapshot
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        ownerId:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+          description: ID владельца
+        visibility:
+          $ref: '#/components/schemas/Visibility'
+        status:
+          allOf:
+            - $ref: '#/components/schemas/QuizStatus'
+          description: Производное состояние.
+        draft:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/QuizContent'
+          nullable: true
+          description: Черновик. Виден только владельцу
+        snapshot:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/QuizContent'
+          nullable: true
+          description: Опубликованный квиз.
+      description: Полноценная сущность квиза с идентичностью и контентом
+    QuizContent:
+      type: object
+      required:
+        - id
+        - title
+        - cards
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        title:
+          type: string
+        description:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+          description: Карточки в порядке следования
+        modifiedAt:
+          type: string
+          format: date-time
+          description: Дата последнего изменения
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата создания.
+      description: Содержимое одного квиза. Структура общая для черновика и снапшота
+    QuizStatus:
+      type: string
+      enum:
+        - UNPUBLISHED
+        - PUBLISHED
+      description: Публиковался ли квиз.
+    QuizSummary:
+      type: object
+      required:
+        - id
+        - version
+        - title
+        - status
+        - visibility
+        - cardCount
+        - modifiedAt
+        - createdAt
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+          description: ID квиза. Совпадает у DRAFT- и PUBLISHED-сводки одного квиза
+        version:
+          allOf:
+            - $ref: '#/components/schemas/QuizVersion'
+          description: Какую версию квиза представляет эта сводка
+        title:
+          type: string
+          description: Заголовок этой версии
+        description:
+          type: string
+          description: Описание этой версии
+        status:
+          allOf:
+            - $ref: '#/components/schemas/QuizStatus'
+          description: Состояние квиза в целом
+        visibility:
+          $ref: '#/components/schemas/Visibility'
+        cardCount:
+          type: integer
+          format: int32
+          description: Число карточек в этой версии
+        modifiedAt:
+          type: string
+          format: date-time
+          description: Дата изменения этой версии
+        createdAt:
+          type: string
+          format: date-time
+      description: |-
+        Лёгкая сводка ОДНОЙ версии квиза.
+        Квиз, у которого есть и снапшот, и черновик, представлен ДВУМЯ сводками
+        (DRAFT и PUBLISHED) с одинаковым `id`, но независимыми title/cardCount/датами.
+        Только черновик → одна сводка (DRAFT); только снапшот → одна (PUBLISHED).
+    QuizVersion:
+      type: string
+      enum:
+        - DRAFT
+        - PUBLISHED
+      description: Какую версию квиза представляет сводка
+    SaveDraftRequest:
+      type: object
+      required:
+        - title
+        - cards
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardInput'
+          maxItems: 60
+          description: Карточки в нужном порядке
+      description: |-
+        Полная замена содержимого черновика.
+        Мягкая валидация: обязателен только непустой title; карточки могут быть
+        недозаполнены.
+    UpdateQuizRequest:
+      type: object
+      required:
+        - visibility
+      properties:
+        visibility:
+          allOf:
+            - $ref: '#/components/schemas/Visibility'
+          description: Явное целевое значение
+      description: Изменение мета-данных квиза.
+    Visibility:
+      type: string
+      enum:
+        - PUBLIC
+        - PRIVATE
+      description: Видимость квиза
+    uuid:
+      type: string
+      format: uuid
+servers:
+  - url: https://quingo.arhr.tech/api
+    description: Production server
+    variables: {}

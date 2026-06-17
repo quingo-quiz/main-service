@@ -40,3 +40,6 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 /k8s/secrets/
+
+# Node / TypeSpec
+node_modules/

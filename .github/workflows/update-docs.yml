@@ -1,0 +1,54 @@
+name: Update API Documentation
+
+on:
+  push:
+    paths:
+      - 'typespec/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate OpenAPI from TypeSpec
+        run: |
+          cd typespec
+          npm install
+          npx tsp compile .
+          cp out/openapi.yaml ../main-service.yml
+
+      - name: Setup kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+      - name: Setup kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+      - name: Update ConfigMap
+        run: |
+          if kubectl get configmap openapi-specs -n quingo-utils &>/dev/null; then
+            kubectl get configmap openapi-specs -n quingo-utils -o json | \
+              jq --rawfile content ./main-service.yml '.data["main-service.yml"] = $content' | \
+              kubectl apply -f -
+          else
+            kubectl create configmap openapi-specs \
+              --namespace quingo-utils \
+              --from-file=main-service.yml=./main-service.yml
+          fi
+
+          kubectl rollout restart deployment/swagger-ui -n quingo-utils
+
+          kubectl rollout status deployment/swagger-ui -n quingo-utils --timeout=60s
