@@ -2,70 +2,110 @@ name: main pipeline
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/quingo-main-service
+
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6.0.1
+      uses: actions/checkout@v6.0.2
 
     - name: Set up JDK 21
       uses: actions/setup-java@v5.1.0
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven
-  
-    - name: Testing
-      run: mvn clean test
-      
 
-  build-and-push:
-    needs: test
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build and test
+      run: ./gradlew build --no-daemon -Dquarkus.container-image.build=false
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: build/test-results/test/
+
+    - name: Upload application build
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: quarkus-app
+        path: build/quarkus-app/
+
+  build-image-and-push:
+    needs: build-and-test
     runs-on: ubuntu-latest
-    
+    if: github.event_name != 'pull_request'
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
-    
+      uses: actions/checkout@v6.0.2
+
+    - name: Download application build
+      uses: actions/download-artifact@v4
+      with:
+        name: quarkus-app
+        path: build/quarkus-app
+
     - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
+      uses: docker/setup-buildx-action@v4
+
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: ./
+        file: src/main/docker/Dockerfile.jvm
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:latest
-          ${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
+          ${{ env.IMAGE_NAME }}:latest
+          ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   deploy:
-    needs: build-and-push
+    needs: build-image-and-push
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Setup kubectl
       run: |
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    
+
     - name: Setup kubeconfig
       run: |
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-    
+
     - name: Deploy to Kubernetes
       run: |
-        kubectl set image deployment/quingo-main-service-deployment \
-          main-service-container=${{ secrets.DOCKER_USERNAME }}/quingo-main-service:${{ github.sha }}
-     
+        kubectl set image deployment/main-service-deployment \
+          main-service-container=${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n quingo-app --record
+
+        kubectl rollout status deployment/main-service-deployment \
+          -n quingo-app --timeout=2m
+
+    - name: Verify deployment
+      run: |
+        kubectl get pods -n quingo-app -l app=main-service

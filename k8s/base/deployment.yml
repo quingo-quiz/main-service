@@ -1,40 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quingo-main-service-deployment
+  name: main-service-deployment
+  namespace: quingo-app
+  labels:
+    app: main-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: quingo-main-service
+      app: main-service
   template:
     metadata:
       labels:
-        app: quingo-main-service
+        app: main-service
     spec:
       containers:
         - name: main-service-container
           image: artem5252/quingo-main-service:latest
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: main-service-secret
-                  key: DB_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: main-service-secret
-                  key: DB_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: main-service-secret
-                  key: DB_NAME
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: main-service-secret
-                  key: DB_HOST
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
+
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

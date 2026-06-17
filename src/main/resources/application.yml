@@ -1,0 +1,10 @@
+quarkus:
+  http:
+    port: 8080
+
+  container-image:
+    builder: jib
+    build: false
+    group: "artem5252"
+    name: "quingo-main-service"
+    tag: "latest"
