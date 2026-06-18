@@ -41,7 +41,7 @@ class QuizResource(
 
     @POST
     fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.create(currentUser.id, QuizMapperImpl.toDto(request))
+        val quiz = quizService.createQuiz(currentUser.id, QuizMapperImpl.toDto(request))
         return created(QuizMapperImpl.toApi(quiz))
     }
 
@@ -55,7 +55,7 @@ class QuizResource(
     @PATCH
     @Path("/{id}")
     fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.changeVisibility(currentUser.id, id, QuizMapperImpl.toDomain(request.visibility))
+        val quiz = quizService.update(currentUser.id, id, QuizMapperImpl.toDomain(request.visibility))
         return ok(QuizMapperImpl.toApi(quiz))
     }
 
@@ -68,8 +68,8 @@ class QuizResource(
 
     @POST
     @Path("/{id}/draft")
-    fun startEditing(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.startEditing(currentUser.id, id)
+    fun createDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
+        val quiz = quizService.createDraft(currentUser.id, id)
         return created(QuizMapperImpl.toApi(quiz))
     }
 
@@ -89,8 +89,8 @@ class QuizResource(
 
     @DELETE
     @Path("/{id}/draft")
-    fun discardDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> {
-        quizService.discardDraft(currentUser.id, id)
+    fun deleteDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Unit>> {
+        quizService.deleteDraft(currentUser.id, id)
         return empty()
     }
 

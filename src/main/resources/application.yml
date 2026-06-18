@@ -2,6 +2,22 @@ quarkus:
   http:
     port: 8080
 
+  datasource:
+    db-kind: postgresql
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:admin}
+    jdbc:
+      url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:main-service-db}
+
+  hibernate-orm:
+    database:
+      schema-management:
+        strategy: validate
+
+  liquibase:
+    migrate-at-start: true
+    change-log: db/changelog/db.changelog-master.yaml
+
   container-image:
     builder: jib
     build: false

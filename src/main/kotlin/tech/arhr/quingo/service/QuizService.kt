@@ -11,19 +11,19 @@ interface QuizService {
 
     fun listSummaries(ownerId: UUID): List<QuizSummaryDto>
 
-    fun create(ownerId: UUID, command: CreateQuizDto): QuizDto
+    fun createQuiz(ownerId: UUID, command: CreateQuizDto): QuizDto
 
     fun get(ownerId: UUID, quizId: UUID): QuizDto
 
-    fun changeVisibility(ownerId: UUID, quizId: UUID, visibility: Visibility): QuizDto
+    fun update(ownerId: UUID, quizId: UUID, visibility: Visibility): QuizDto
 
     fun delete(ownerId: UUID, quizId: UUID)
 
-    fun startEditing(ownerId: UUID, quizId: UUID): QuizDto
+    fun createDraft(ownerId: UUID, quizId: UUID): QuizDto
 
     fun saveDraft(ownerId: UUID, quizId: UUID, content: DraftContentDto): QuizDto
 
     fun publish(ownerId: UUID, quizId: UUID): QuizDto
 
-    fun discardDraft(ownerId: UUID, quizId: UUID)
+    fun deleteDraft(ownerId: UUID, quizId: UUID)
 }
