@@ -1,1 +1,4 @@
-databaseChangeLog: []
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/0001-init-quiz-schema.sql
+      relativeToChangelogFile: false

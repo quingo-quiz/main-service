@@ -5,7 +5,6 @@ import jakarta.ws.rs.container.ContainerRequestFilter
 import jakarta.ws.rs.ext.Provider
 import java.util.UUID
 
-/** Читает заголовки идентичности, проставленные gateway, в [CurrentUser]. */
 @Provider
 class GatewayIdentityFilter(private val currentUser: CurrentUser) : ContainerRequestFilter {
 

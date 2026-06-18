@@ -3,9 +3,6 @@ package tech.arhr.quingo.api.rest.models
 import jakarta.ws.rs.core.Response
 import java.time.Instant
 
-/**
- * Универсальный конверт успешного ответа.
- */
 data class SuccessResponse<T>(
     val status: Int,
     val statusMessage: String,

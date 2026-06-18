@@ -6,7 +6,6 @@ import jakarta.ws.rs.core.UriInfo
 import tech.arhr.quingo.api.rest.models.ErrorResponse
 import java.time.Instant
 
-/** Собирает [ErrorResponse] с контекстом текущего запроса. */
 internal fun buildErrorResponse(
     status: Response.StatusType,
     message: String?,

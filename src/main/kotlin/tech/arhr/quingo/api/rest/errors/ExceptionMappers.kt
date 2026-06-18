@@ -12,21 +12,17 @@ import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import tech.arhr.quingo.exceptions.QuingoAppException
 
-/** Доменные исключения */
 @Provider
 class QuingoAppExceptionMapper : ExceptionMapper<QuingoAppException> {
     @Context lateinit var uriInfo: UriInfo
     @Context lateinit var request: Request
 
     override fun toResponse(exception: QuingoAppException): Response {
-        val body = buildErrorResponse(
-            exception.status, exception.message, uriInfo, request, exception.fieldErrors,
-        )
+        val body = buildErrorResponse(exception.status, exception.message, uriInfo, request, exception.fieldErrors)
         return Response.status(exception.status.statusCode).entity(body).build()
     }
 }
 
-/** Ошибки bean-валидации */
 @Priority(1)
 @Provider
 class ConstraintViolationExceptionMapper : ExceptionMapper<ConstraintViolationException> {
@@ -48,7 +44,6 @@ class ConstraintViolationExceptionMapper : ExceptionMapper<ConstraintViolationEx
     }
 }
 
-/** Прочие JAX-RS исключения */
 @Provider
 class WebApplicationExceptionMapper : ExceptionMapper<WebApplicationException> {
     @Context lateinit var uriInfo: UriInfo
@@ -61,7 +56,6 @@ class WebApplicationExceptionMapper : ExceptionMapper<WebApplicationException> {
     }
 }
 
-/** Неизвестные исключения */
 @Provider
 class UncaughtExceptionMapper : ExceptionMapper<Throwable> {
     @Context lateinit var uriInfo: UriInfo

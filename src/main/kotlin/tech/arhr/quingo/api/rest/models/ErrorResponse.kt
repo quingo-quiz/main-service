@@ -2,13 +2,6 @@ package tech.arhr.quingo.api.rest.models
 
 import java.time.Instant
 
-/**
- * Универсальный конверт ошибки. Заполняется обработчиками исключений.
- *
- * - [fieldErrors] — сообщения валидации.
- * - [rejectedValues] — отклонённые значения по полям.
- * - [details] — произвольный контекст ошибки.
- */
 data class ErrorResponse(
     val status: Int,
     val statusMessage: String,

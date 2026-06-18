@@ -48,6 +48,7 @@
 - `title` — название квиза
 - `description` — описание (необязательно)
 - `cards` — карточки черновика, упорядоченные по `position`
+- `createdAt` — дата создания черновика
 - `modifiedAt` — дата последнего изменения
 
 **Характеристики:**
@@ -65,12 +66,13 @@
 - `title` — название на момент публикации
 - `description` — описание на момент публикации
 - `cards` — карточки снапшота, упорядоченные по `position` (заморожены)
-- `publishedAt` — дата последней публикации
+- `createdAt` — дата создания снапшота
+- `modifiedAt` — дата последнего изменения (последней публикации)
 
 **Характеристики:**
 - Неизменен в обычной работе: правки черновика его не затрагивают.
 - Является «живой» версией квиза: виден в каталоге (если PUBLIC), доступен для игр.
-- **Редактирование опубликованного квиза:** создаётся черновик-копия снапшота → пользователь меняет черновик как хочет → при повторной публикации **тот же снапшот обновляется** на основе черновика (строка снапшота и её `id` сохраняются, меняется содержимое и `publishedAt`). Стабильность `id` важна: внешние ссылки на снапшот не ломаются.
+- **Редактирование опубликованного квиза:** создаётся черновик-копия снапшота → пользователь меняет черновик как хочет → при повторной публикации **тот же снапшот обновляется** на основе черновика (строка снапшота и её `id` сохраняются, меняется содержимое и `modifiedAt`). Стабильность `id` важна: внешние ссылки на снапшот не ломаются.
 
 ---
 
@@ -185,7 +187,7 @@ PUBLISHED_WITH_DRAFT ──[Редактировать]──▶ PUBLISHED_WITH_
 ### Детали `publish`
 
 - **Из `UNPUBLISHED`** (снапшота ещё нет): создаётся новая строка снапшота; карточки черновика переносятся под снапшот; черновик удаляется.
-- **Из `PUBLISHED_WITH_DRAFT`** (снапшот уже есть): **существующая** строка снапшота обновляется (`title`, `description`, `publishedAt`), её `id` сохраняется; старые карточки снапшота удаляются; карточки черновика переносятся под снапшот; черновик удаляется.
+- **Из `PUBLISHED_WITH_DRAFT`** (снапшот уже есть): **существующая** строка снапшота обновляется (`title`, `description`, `modifiedAt`), её `id` сохраняется; старые карточки снапшота удаляются; карточки черновика переносятся под снапшот; черновик удаляется.
 - «Перенести карточку под снапшот» = переключить родителя (`draft → snapshot`), сохранив `position`. Поскольку старые карточки снапшота уже удалены, конфликта позиций нет.
 - Требование к публикации: в черновике ≥1 карточка и все инварианты карточек соблюдены.
 
@@ -211,8 +213,9 @@ CREATE TABLE quizzes (
 CREATE TABLE quiz_drafts (
     id          UUID PRIMARY KEY,
     quiz_id     UUID NOT NULL UNIQUE REFERENCES quizzes(id) ON DELETE CASCADE,
-    title       VARCHAR NOT NULL,
-    description TEXT,
+    title       VARCHAR(200) NOT NULL,
+    description VARCHAR(1000),
+    created_at  TIMESTAMPTZ NOT NULL,
     modified_at TIMESTAMPTZ NOT NULL
 );
 
@@ -220,9 +223,10 @@ CREATE TABLE quiz_drafts (
 CREATE TABLE quiz_snapshots (
     id           UUID PRIMARY KEY,
     quiz_id      UUID NOT NULL UNIQUE REFERENCES quizzes(id) ON DELETE CASCADE,
-    title        VARCHAR NOT NULL,
-    description  TEXT,
-    published_at TIMESTAMPTZ NOT NULL
+    title        VARCHAR(200) NOT NULL,
+    description  VARCHAR(1000),
+    created_at   TIMESTAMPTZ NOT NULL,
+    modified_at  TIMESTAMPTZ NOT NULL
 );
 
 -- Карточки: ровно один родитель (черновик ИЛИ снапшот); ответы денормализованы
@@ -232,7 +236,7 @@ CREATE TABLE cards (
     snapshot_id    UUID REFERENCES quiz_snapshots(id) ON DELETE CASCADE,
     position       INT NOT NULL CHECK (position >= 0),
     type           card_type NOT NULL,
-    question_text  TEXT NOT NULL,
+    question_text  VARCHAR(500) NOT NULL,
     timer_seconds  INT NOT NULL CHECK (timer_seconds > 0),
     options        JSONB,        -- [{"id":"...","text":"...","isCorrect":true}, ...]  для SINGLE/MULTIPLE
     accepted_texts TEXT[],       -- ["ответ 1","ответ 2"]                              для TEXT_INPUT
@@ -246,6 +250,10 @@ CREATE TABLE cards (
         OR
         (type = 'TEXT_INPUT' AND accepted_texts IS NOT NULL AND options IS NULL)
     ),
+
+    -- размеры массивов ответов (защита от мусорных значений)
+    CONSTRAINT options_max  CHECK (options IS NULL OR jsonb_array_length(options) <= 8),
+    CONSTRAINT accepted_max CHECK (accepted_texts IS NULL OR cardinality(accepted_texts) <= 50),
 
     -- позиция уникальна в пределах родителя; NULL-родитель строки не конфликтуют между собой.
     -- DEFERRABLE — чтобы переупорядочивание карточек в одной транзакции не падало на промежуточных значениях
@@ -291,7 +299,7 @@ CREATE TABLE cards (
 - **Число карточек в квизе:** от 1 до 60. Максимум контролируется при добавлении карточки в черновик; минимум (≥1) — при `publish`.
 - **`publish`** требует: в черновике ≥1 карточка и все карточки проходят инварианты 5.1.
 - **`publish` из `PUBLISHED_WITH_DRAFT`** выполняется строго в порядке: `DELETE` старых карточек снапшота → перенос карточек черновика под снапшот. Так промежуточный конфликт `uq_snapshot_position` не возникает (старые позиции уже удалены к моменту переноса).
-- **`editDraft`** обновляет `modified_at`; **`publish`** обновляет `published_at` — БД сама даты не проставляет.
+- **`editDraft`** обновляет `modified_at`; **`publish`** обновляет `modified_at` — БД сама даты не проставляет.
 - **`title`** непустой после `trim`; жёсткого лимита длины пока нет.
 
 ### 5.3 Доступ (авторизация)
@@ -313,8 +321,8 @@ CREATE TABLE cards (
 | Число вариантов ответа в карточке | 2–8 |
 | Диапазон `timerSeconds` | 1–60 |
 | `PATCH /quizzes/{id}` | Меняет **только `visibility`** (уровень квиза). `title`/`description` версионируются и правятся исключительно через сохранение черновика (`editDraft`) — снапшот остаётся неизменяемым |
-| Длина `title` / `questionText` | Жёсткого лимита пока нет |
-| `created_at` у квиза для сортировки | Не добавляем сейчас |
+| Длина текстовых полей | `title` ≤ 200, `description` ≤ 1000, `questionText` ≤ 500, текст варианта/ответа ≤ 500. Заданы и в БД (VARCHAR), и на API (`@Size`) |
+| `created_at` | Добавлен на уровне `quiz_drafts` / `quiz_snapshots` (per-версия). Квиз-уровневого нет |
 | Оптимистическая блокировка черновика | Не нужна на этом этапе |
 
 ### Отложено

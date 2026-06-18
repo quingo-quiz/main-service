@@ -34,30 +34,22 @@ class QuizResource(
 ) {
 
     @GET
-    fun list(): RestResponse<SuccessResponse<List<QuizSummary>>> {
-        val data = quizService.listSummaries(currentUser.id).map { QuizMapperImpl.toApi(it) }
-        return ok(data)
-    }
+    fun list(): RestResponse<SuccessResponse<List<QuizSummary>>> =
+        ok(quizService.listSummaries(currentUser.id).map { QuizMapperImpl.toApi(it) })
 
     @POST
-    fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.createQuiz(currentUser.id, QuizMapperImpl.toDto(request))
-        return created(QuizMapperImpl.toApi(quiz))
-    }
+    fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
+        created(QuizMapperImpl.toApi(quizService.createQuiz(currentUser.id, request)))
 
     @GET
     @Path("/{id}")
-    fun get(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.get(currentUser.id, id)
-        return ok(QuizMapperImpl.toApi(quiz))
-    }
+    fun get(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.get(currentUser.id, id)))
 
     @PATCH
     @Path("/{id}")
-    fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.update(currentUser.id, id, QuizMapperImpl.toDomain(request.visibility))
-        return ok(QuizMapperImpl.toApi(quiz))
-    }
+    fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.update(currentUser.id, id, request.visibility)))
 
     @DELETE
     @Path("/{id}")
@@ -68,24 +60,18 @@ class QuizResource(
 
     @POST
     @Path("/{id}/draft")
-    fun createDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.createDraft(currentUser.id, id)
-        return created(QuizMapperImpl.toApi(quiz))
-    }
+    fun createDraft(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
+        created(QuizMapperImpl.toApi(quizService.createDraft(currentUser.id, id)))
 
     @PUT
     @Path("/{id}/draft")
-    fun saveDraft(@PathParam("id") id: UUID, @Valid request: SaveDraftRequest): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.saveDraft(currentUser.id, id, QuizMapperImpl.toDto(request))
-        return ok(QuizMapperImpl.toApi(quiz))
-    }
+    fun saveDraft(@PathParam("id") id: UUID, @Valid request: SaveDraftRequest): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.saveDraft(currentUser.id, id, request)))
 
     @POST
     @Path("/{id}/publish")
-    fun publish(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> {
-        val quiz = quizService.publish(currentUser.id, id)
-        return ok(QuizMapperImpl.toApi(quiz))
-    }
+    fun publish(@PathParam("id") id: UUID): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.publish(currentUser.id, id)))
 
     @DELETE
     @Path("/{id}/draft")
