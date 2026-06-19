@@ -1,6 +1,7 @@
 package tech.arhr.quingo.api.rest.resources
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -38,8 +39,8 @@ class QuizResource(
         ok(quizService.listSummaries(currentUser.id).map { QuizMapperImpl.toApi(it) })
 
     @POST
-    fun create(@Valid request: CreateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
-        created(QuizMapperImpl.toApi(quizService.createQuiz(currentUser.id, request)))
+    fun create(@Valid @NotNull request: CreateQuizRequest?): RestResponse<SuccessResponse<Quiz>> =
+        created(QuizMapperImpl.toApi(quizService.createQuiz(currentUser.id, request!!)))
 
     @GET
     @Path("/{id}")
@@ -48,8 +49,8 @@ class QuizResource(
 
     @PATCH
     @Path("/{id}")
-    fun update(@PathParam("id") id: UUID, @Valid request: UpdateQuizRequest): RestResponse<SuccessResponse<Quiz>> =
-        ok(QuizMapperImpl.toApi(quizService.update(currentUser.id, id, request.visibility)))
+    fun update(@PathParam("id") id: UUID, @Valid @NotNull request: UpdateQuizRequest?): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.update(currentUser.id, id, request!!.visibility!!)))
 
     @DELETE
     @Path("/{id}")
@@ -65,8 +66,8 @@ class QuizResource(
 
     @PUT
     @Path("/{id}/draft")
-    fun saveDraft(@PathParam("id") id: UUID, @Valid request: SaveDraftRequest): RestResponse<SuccessResponse<Quiz>> =
-        ok(QuizMapperImpl.toApi(quizService.saveDraft(currentUser.id, id, request)))
+    fun saveDraft(@PathParam("id") id: UUID, @Valid @NotNull request: SaveDraftRequest?): RestResponse<SuccessResponse<Quiz>> =
+        ok(QuizMapperImpl.toApi(quizService.saveDraft(currentUser.id, id, request!!)))
 
     @POST
     @Path("/{id}/publish")

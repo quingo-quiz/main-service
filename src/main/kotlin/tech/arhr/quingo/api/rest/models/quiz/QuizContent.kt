@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class QuizContent(
     val id: UUID,
-    val title: String,
+    val title: String? = null,
     val description: String? = null,
     val cards: List<CardResponse>,
     val modifiedAt: Instant? = null,

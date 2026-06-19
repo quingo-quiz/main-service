@@ -10,7 +10,4 @@ class QuizRepository : PanacheRepositoryBase<QuizEntity, UUID> {
 
     fun findByOwner(ownerId: UUID): List<QuizEntity> =
         list("ownerId", ownerId)
-
-    fun findByIdAndOwner(id: UUID, ownerId: UUID): QuizEntity? =
-        find("id = ?1 and ownerId = ?2", id, ownerId).firstResult()
 }

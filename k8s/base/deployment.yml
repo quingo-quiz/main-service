@@ -22,11 +22,46 @@ spec:
           ports:
             - containerPort: 8080
 
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: main-service-secret
+                  key: POSTGRES_PASSWORD
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
           livenessProbe:
             httpGet:
               path: /q/health/live
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
@@ -35,7 +70,7 @@ spec:
             httpGet:
               path: /q/health/ready
               port: 8080
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3

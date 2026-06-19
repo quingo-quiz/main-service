@@ -15,8 +15,3 @@ enum class CardType {
     MULTIPLE_CHOICE,
     TEXT_INPUT,
 }
-
-enum class QuizVersion {
-    DRAFT,
-    PUBLISHED,
-}

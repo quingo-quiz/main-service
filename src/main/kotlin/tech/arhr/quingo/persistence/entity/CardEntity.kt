@@ -31,15 +31,18 @@ class CardEntity {
     @Column(name = "position", nullable = false)
     var position: Int = 0
 
+    // type / questionText / timerSeconds nullable: карточка черновика может быть
+    // неполной. Для опубликованных карточек (снапшот) полнота гарантируется
+    // проверкой при публикации и CHECK-ограничениями в БД.
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "type", columnDefinition = "card_type", nullable = false)
-    lateinit var type: CardType
+    @Column(name = "type", columnDefinition = "card_type")
+    var type: CardType? = null
 
-    @Column(name = "question_text", nullable = false)
-    lateinit var questionText: String
+    @Column(name = "question_text")
+    var questionText: String? = null
 
-    @Column(name = "timer_seconds", nullable = false)
-    var timerSeconds: Int = 0
+    @Column(name = "timer_seconds")
+    var timerSeconds: Int? = null
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "options")

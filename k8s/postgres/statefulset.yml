@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: main-postgres
+  namespace: quingo-app
+spec:
+  serviceName: main-postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-postgres
+  template:
+    metadata:
+      labels:
+        app: main-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17-alpine
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: main-postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: main-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: main-postgres-secret
+                  key: POSTGRES_PASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: main-postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+  volumeClaimTemplates:
+    - metadata:
+        name: main-postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

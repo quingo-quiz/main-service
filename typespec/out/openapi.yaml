@@ -747,7 +747,6 @@ components:
       type: object
       required:
         - id
-        - version
         - title
         - status
         - visibility
@@ -758,11 +757,7 @@ components:
         id:
           allOf:
             - $ref: '#/components/schemas/uuid'
-          description: ID квиза. Совпадает у DRAFT- и PUBLISHED-сводки одного квиза
-        version:
-          allOf:
-            - $ref: '#/components/schemas/QuizVersion'
-          description: Какую версию квиза представляет эта сводка
+          description: ID квиза. Совпадает у сводки черновика и опубликованной версии одного квиза
         title:
           type: string
           description: Заголовок этой версии
@@ -772,7 +767,7 @@ components:
         status:
           allOf:
             - $ref: '#/components/schemas/QuizStatus'
-          description: Состояние квиза в целом
+          description: UNPUBLISHED — сводка черновика, PUBLISHED — опубликованной версии
         visibility:
           $ref: '#/components/schemas/Visibility'
         cardCount:
@@ -786,17 +781,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      description: |-
-        Лёгкая сводка ОДНОЙ версии квиза.
-        Квиз, у которого есть и снапшот, и черновик, представлен ДВУМЯ сводками
-        (DRAFT и PUBLISHED) с одинаковым `id`, но независимыми title/cardCount/датами.
-        Только черновик → одна сводка (DRAFT); только снапшот → одна (PUBLISHED).
-    QuizVersion:
-      type: string
-      enum:
-        - DRAFT
-        - PUBLISHED
-      description: Какую версию квиза представляет сводка
+      description: Лёгкая сводка черновика или реального квиза.
     SaveDraftRequest:
       type: object
       required:

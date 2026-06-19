@@ -5,8 +5,7 @@ import java.util.UUID
 
 data class QuizSummaryDto(
     val id: UUID,
-    val version: QuizVersion,
-    val title: String,
+    val title: String? = null,
     val description: String? = null,
     val status: QuizStatus,
     val visibility: Visibility,
