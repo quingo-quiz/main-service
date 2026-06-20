@@ -31,9 +31,6 @@ class CardEntity {
     @Column(name = "position", nullable = false)
     var position: Int = 0
 
-    // type / questionText / timerSeconds nullable: карточка черновика может быть
-    // неполной. Для опубликованных карточек (снапшот) полнота гарантируется
-    // проверкой при публикации и CHECK-ограничениями в БД.
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type", columnDefinition = "card_type")
     var type: CardType? = null

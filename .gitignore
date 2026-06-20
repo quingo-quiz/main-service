@@ -43,3 +43,4 @@ nb-configuration.xml
 
 # Node / TypeSpec
 node_modules/
+/docs/

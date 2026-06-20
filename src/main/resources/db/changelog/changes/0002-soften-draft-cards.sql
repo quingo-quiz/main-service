@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset artem:0002-soften-draft-cards
---comment: Мягкая валидация черновиков — заголовок и карточки могут быть неполными; строгие проверки только для опубликованных карточек (снапшот)
+--comment: Мягкая валидация черновиков
 
 -- Заголовок черновика может быть пустым на этапе черновика
 ALTER TABLE quiz_drafts ALTER COLUMN title DROP NOT NULL;

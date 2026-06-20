@@ -38,7 +38,7 @@ class ConstraintViolationExceptionMapper : ExceptionMapper<ConstraintViolationEx
         val fieldErrors = LinkedHashMap<String, String>()
         val rejectedValues = LinkedHashMap<String, Any?>()
         exception.constraintViolations.forEach { violation ->
-            val field = renderPath(violation.propertyPath)
+            val field = transformPath(violation.propertyPath)
             fieldErrors[field] = violation.message
             rejectedValues[field] = violation.invalidValue
         }
@@ -47,9 +47,7 @@ class ConstraintViolationExceptionMapper : ExceptionMapper<ConstraintViolationEx
 }
 
 /**
- * Перехватывает ошибки десериализации тела (неверный enum, неверный тип,
- * неизвестное или отсутствующее поле) и приводит их к единому формату
- * fieldErrors + rejectedValues. @Priority(1) перебивает встроенный маппер Quarkus.
+ * Перехватывает ошибки десериализации тела и приводит их к единому формату
  */
 @Priority(1)
 @Provider
@@ -113,10 +111,9 @@ class UncaughtExceptionMapper : ExceptionMapper<Throwable> {
 }
 
 /**
- * Рендерит путь Bean Validation в нотацию `cards[0].timerSeconds`, отбрасывая
- * служебные узлы метода/параметра (напр. `saveDraft.request`).
+ * Трансформирует путь для отклонённых полей.
  */
-internal fun renderPath(path: Path): String {
+internal fun transformPath(path: Path): String {
     val sb = StringBuilder()
     for (node in path) {
         if (node.kind != ElementKind.PROPERTY) continue
@@ -130,7 +127,7 @@ internal fun renderPath(path: Path): String {
     return sb.toString().ifBlank { path.lastOrNull()?.name ?: "request" }
 }
 
-/** Собирает путь до поля из JSON-цепочки Jackson, напр. `cards[0].timerSeconds`. */
+/** Собирает путь до поля из JSON-цепочки  */
 internal fun buildJsonPath(refs: List<JsonMappingException.Reference>): String {
     val sb = StringBuilder()
     for (ref in refs) {

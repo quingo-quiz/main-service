@@ -25,7 +25,6 @@ class QuizDraftEntity {
     @JoinColumn(name = "quiz_id", nullable = false, unique = true)
     lateinit var quiz: QuizEntity
 
-    // Заголовок черновика может быть пустым; обязателен только при публикации.
     @Column(name = "title")
     var title: String? = null
 
