@@ -3,7 +3,7 @@ package tech.arhr.quingo.api.rest.models.quiz
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import tech.arhr.quingo.dto.Visibility
+import tech.arhr.quingo.dto.quiz.Visibility
 
 data class CreateQuizRequest(
     @field:NotBlank

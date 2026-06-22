@@ -2,9 +2,9 @@ package tech.arhr.quingo.service
 
 import tech.arhr.quingo.api.rest.models.quiz.CreateQuizRequest
 import tech.arhr.quingo.api.rest.models.quiz.SaveDraftRequest
-import tech.arhr.quingo.dto.QuizDto
-import tech.arhr.quingo.dto.QuizSummaryDto
-import tech.arhr.quingo.dto.Visibility
+import tech.arhr.quingo.dto.quiz.QuizDto
+import tech.arhr.quingo.dto.quiz.QuizSummaryDto
+import tech.arhr.quingo.dto.quiz.Visibility
 import java.util.UUID
 
 interface QuizService {

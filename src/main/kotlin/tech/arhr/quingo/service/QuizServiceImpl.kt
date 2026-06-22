@@ -7,11 +7,11 @@ import tech.arhr.quingo.api.rest.models.quiz.CardInput
 import tech.arhr.quingo.api.rest.models.quiz.CreateQuizRequest
 import tech.arhr.quingo.api.rest.models.quiz.SaveDraftRequest
 import tech.arhr.quingo.common.TimeProvider
-import tech.arhr.quingo.dto.CardType
-import tech.arhr.quingo.dto.QuizDto
-import tech.arhr.quingo.dto.QuizStatus
-import tech.arhr.quingo.dto.QuizSummaryDto
-import tech.arhr.quingo.dto.Visibility
+import tech.arhr.quingo.dto.quiz.CardType
+import tech.arhr.quingo.dto.quiz.QuizDto
+import tech.arhr.quingo.dto.quiz.QuizStatus
+import tech.arhr.quingo.dto.quiz.QuizSummaryDto
+import tech.arhr.quingo.dto.quiz.Visibility
 import tech.arhr.quingo.exceptions.EntityNotFoundException
 import tech.arhr.quingo.exceptions.PermissionDeniedException
 import tech.arhr.quingo.exceptions.QuingoAppException

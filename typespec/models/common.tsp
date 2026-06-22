@@ -8,6 +8,23 @@ model SuccessResponse<T> {
   timestamp: utcDateTime;
 }
 
+@doc("Страница результатов с пагинацией")
+model Page<T> {
+  items: T[];
+
+  @doc("Текущая страница")
+  page: int32;
+
+  @doc("Размер страницы")
+  size: int32;
+
+  @doc("Всего элементов")
+  total: int64;
+
+  @doc("Всего страниц")
+  totalPages: int32;
+}
+
 @error
 model ErrorResponse {
   status: int32;

@@ -6,11 +6,11 @@ import tech.arhr.quingo.api.rest.models.quiz.CardResponse
 import tech.arhr.quingo.api.rest.models.quiz.Quiz
 import tech.arhr.quingo.api.rest.models.quiz.QuizContent
 import tech.arhr.quingo.api.rest.models.quiz.QuizSummary
-import tech.arhr.quingo.dto.CardDto
-import tech.arhr.quingo.dto.CardOptionDto
-import tech.arhr.quingo.dto.QuizContentDto
-import tech.arhr.quingo.dto.QuizDto
-import tech.arhr.quingo.dto.QuizSummaryDto
+import tech.arhr.quingo.dto.quiz.CardDto
+import tech.arhr.quingo.dto.quiz.CardOptionDto
+import tech.arhr.quingo.dto.quiz.QuizContentDto
+import tech.arhr.quingo.dto.quiz.QuizDto
+import tech.arhr.quingo.dto.quiz.QuizSummaryDto
 
 @Konverter
 interface QuizMapper {

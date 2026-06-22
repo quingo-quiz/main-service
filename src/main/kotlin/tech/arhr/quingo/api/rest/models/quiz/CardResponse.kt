@@ -1,6 +1,6 @@
 package tech.arhr.quingo.api.rest.models.quiz
 
-import tech.arhr.quingo.dto.CardType
+import tech.arhr.quingo.dto.quiz.CardType
 import java.util.UUID
 
 data class CardResponse(

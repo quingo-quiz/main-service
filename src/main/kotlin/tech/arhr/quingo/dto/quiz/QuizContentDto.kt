@@ -1,4 +1,4 @@
-package tech.arhr.quingo.dto
+package tech.arhr.quingo.dto.quiz
 
 import java.time.Instant
 import java.util.UUID

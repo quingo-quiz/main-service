@@ -1,4 +1,4 @@
-package tech.arhr.quingo.dto
+package tech.arhr.quingo.dto.quiz
 
 data class CardOptionDto(
     val id: Int,

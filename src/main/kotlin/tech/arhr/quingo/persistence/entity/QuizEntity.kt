@@ -9,7 +9,7 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
-import tech.arhr.quingo.dto.Visibility
+import tech.arhr.quingo.dto.quiz.Visibility
 import java.util.UUID
 
 @Entity

@@ -5,7 +5,135 @@ info:
 tags:
   - name: Quiz
   - name: Draft
+  - name: Catalog
 paths:
+  /catalog:
+    get:
+      operationId: CatalogRoutes_list
+      summary: Выбрать квизы из каталога
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          explode: false
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    required:
+                      - items
+                      - page
+                      - size
+                      - total
+                      - totalPages
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CatalogItem'
+                      page:
+                        type: integer
+                        format: int32
+                        description: Текущая страница
+                      size:
+                        type: integer
+                        format: int32
+                        description: Размер страницы
+                      total:
+                        type: integer
+                        format: int64
+                        description: Всего элементов
+                      totalPages:
+                        type: integer
+                        format: int32
+                        description: Всего страниц
+                    description: Страница результатов с пагинацией
+                  timestamp:
+                    type: string
+                    format: date-time
+      tags:
+        - Catalog
+  /catalog/{id}:
+    get:
+      operationId: CatalogRoutes_getById
+      summary: Получить квиз из каталога по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - statusMessage
+                  - message
+                  - data
+                  - timestamp
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                  statusMessage:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CatalogItem'
+                  timestamp:
+                    type: string
+                    format: date-time
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Catalog
   /quizzes:
     get:
       operationId: QuizRoutes_list
@@ -627,6 +755,38 @@ components:
         - MULTIPLE_CHOICE
         - TEXT_INPUT
       description: Тип карточки
+    CatalogItem:
+      type: object
+      required:
+        - id
+        - title
+        - cardCount
+        - modifiedAt
+        - createdAt
+        - ownerId
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        title:
+          type: string
+        description:
+          type: string
+        cardCount:
+          type: integer
+          format: int32
+          description: Число карточек в этой версии
+        modifiedAt:
+          type: string
+          format: date-time
+          description: Дата изменения последнего изменения
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата создания квиза
+        ownerId:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+          description: ID владельца
     CreateQuizRequest:
       type: object
       required:

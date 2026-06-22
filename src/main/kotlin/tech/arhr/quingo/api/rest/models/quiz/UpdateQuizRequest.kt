@@ -1,7 +1,7 @@
 package tech.arhr.quingo.api.rest.models.quiz
 
 import jakarta.validation.constraints.NotNull
-import tech.arhr.quingo.dto.Visibility
+import tech.arhr.quingo.dto.quiz.Visibility
 
 data class UpdateQuizRequest(
     @field:NotNull

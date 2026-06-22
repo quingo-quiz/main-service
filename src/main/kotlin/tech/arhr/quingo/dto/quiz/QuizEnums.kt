@@ -1,4 +1,4 @@
-package tech.arhr.quingo.dto
+package tech.arhr.quingo.dto.quiz
 
 enum class Visibility {
     PUBLIC,

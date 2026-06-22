@@ -9,7 +9,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
-import tech.arhr.quingo.dto.CardType
+import tech.arhr.quingo.dto.quiz.CardType
 import java.util.UUID
 
 @Entity

@@ -2,7 +2,7 @@ package tech.arhr.quingo.api.rest.models.quiz
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
-import tech.arhr.quingo.dto.CardType
+import tech.arhr.quingo.dto.quiz.CardType
 
 /**
  * Карточка в теле черновика.
