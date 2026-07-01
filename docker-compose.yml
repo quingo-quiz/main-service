@@ -21,8 +21,27 @@ services:
       retries: 5
       start_period: 30s
 
+  redis:
+    image: redis:8.6-alpine
+    container_name: main-service-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    restart: on-failure
+    volumes:
+      - main-service-redis-data:/data
+    networks:
+      - main-service-network
+    command: redis-server --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep -q PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 networks:
   main-service-network:
 
 volumes:
   main-service-postgres-data:
+  main-service-redis-data:

@@ -1,5 +1,10 @@
 package tech.arhr.quingo.service
 
+import io.quarkus.cache.Cache
+import io.quarkus.cache.CacheInvalidate
+import io.quarkus.cache.CacheKey
+import io.quarkus.cache.CacheName
+import io.quarkus.cache.CacheResult
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.core.Response
@@ -29,7 +34,12 @@ import java.util.UUID
 class QuizServiceImpl(
     private val quizRepository: QuizRepository,
     private val time: TimeProvider,
+    @CacheName("catalog-item-cache") private val catalogItemCache: Cache,
 ) : QuizService {
+
+    private fun invalidateCatalogItemCache(quizId: UUID) {
+        catalogItemCache.invalidate(quizId).await().indefinitely()
+    }
 
     override fun listSummaries(ownerId: UUID): List<QuizSummaryDto> =
         quizRepository.findByOwner(ownerId).flatMap { it.toSummaries() }
@@ -53,19 +63,39 @@ class QuizServiceImpl(
         return quiz.toDto()
     }
 
-    override fun get(ownerId: UUID, quizId: UUID): QuizDto =
+    @CacheResult(cacheName = "quizzes-cache")
+    override fun get(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID
+    ): QuizDto =
         findOrThrow(ownerId, quizId).toDto()
 
-    override fun update(ownerId: UUID, quizId: UUID, visibility: Visibility): QuizDto {
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun update(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID,
+        visibility: Visibility
+    ): QuizDto {
         val quiz = findOrThrow(ownerId, quizId)
         quiz.visibility = visibility
+        invalidateCatalogItemCache(quizId)
         return quiz.toDto()
     }
 
-    override fun delete(ownerId: UUID, quizId: UUID) =
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun delete(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID
+    ) {
         quizRepository.delete(findOrThrow(ownerId, quizId))
+        invalidateCatalogItemCache(quizId)
+    }
 
-    override fun createDraft(ownerId: UUID, quizId: UUID): QuizDto {
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun createDraft(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID
+    ): QuizDto {
         val quiz = findOrThrow(ownerId, quizId)
         if (quiz.draft != null) throw QuingoAppException("Quiz already has a draft")
         val snapshot = quiz.snapshot ?: throw QuingoAppException("Quiz has no published snapshot")
@@ -82,7 +112,12 @@ class QuizServiceImpl(
         return quiz.toDto()
     }
 
-    override fun saveDraft(ownerId: UUID, quizId: UUID, request: SaveDraftRequest): QuizDto {
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun saveDraft(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID,
+        request: SaveDraftRequest
+    ): QuizDto {
         val quiz = findOrThrow(ownerId, quizId)
         val draft = quiz.draft ?: throw QuingoAppException("Quiz has no draft")
 
@@ -93,7 +128,11 @@ class QuizServiceImpl(
         return quiz.toDto()
     }
 
-    override fun publish(ownerId: UUID, quizId: UUID): QuizDto {
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun publish(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID
+    ): QuizDto {
         val quiz = findOrThrow(ownerId, quizId)
         val draft = quiz.draft ?: throw QuingoAppException("Quiz has no draft to publish")
         validateForPublish(draft)
@@ -110,10 +149,15 @@ class QuizServiceImpl(
         replaceCards(snapshot.cards, draft.cards) { newCard(snapshot) }
 
         quiz.draft = null
+        invalidateCatalogItemCache(quizId)
         return quiz.toDto()
     }
 
-    override fun deleteDraft(ownerId: UUID, quizId: UUID) {
+    @CacheInvalidate(cacheName = "quizzes-cache")
+    override fun deleteDraft(
+        @CacheKey ownerId: UUID,
+        @CacheKey quizId: UUID
+    ) {
         val quiz = findOrThrow(ownerId, quizId)
         if (quiz.draft == null) throw QuingoAppException("Quiz has no draft")
         if (quiz.snapshot == null) {

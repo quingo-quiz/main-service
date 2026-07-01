@@ -5,8 +5,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.jboss.resteasy.reactive.RestResponse
 import tech.arhr.quingo.api.rest.models.SuccessResponse
-import tech.arhr.quingo.dto.pagination.PageDto
 import tech.arhr.quingo.dto.catalog.CatalogItemDto
+import tech.arhr.quingo.dto.catalog.CatalogPageDto
 import tech.arhr.quingo.service.CatalogService
 import java.time.Instant
 import java.util.UUID
@@ -22,7 +22,7 @@ class CatalogResource(
         @QueryParam("q") query: String?,
         @QueryParam("page") page: Int?,
         @QueryParam("size") size: Int?,
-    ): RestResponse<SuccessResponse<PageDto<CatalogItemDto>>> {
+    ): RestResponse<SuccessResponse<CatalogPageDto>> {
         return ok(catalogService.search(query, page, size))
     }
 

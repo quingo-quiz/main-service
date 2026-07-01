@@ -30,6 +30,7 @@ dependencies {
     implementation("io.quarkus:quarkus-smallrye-health")
     implementation("io.quarkus:quarkus-container-image-jib")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.quarkus:quarkus-redis-cache")
     testImplementation("io.quarkus:quarkus-junit")
     testImplementation("io.rest-assured:rest-assured")
 }

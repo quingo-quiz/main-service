@@ -11,6 +11,21 @@ quarkus:
     jdbc:
       url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:main-service-db}
 
+  redis:
+    hosts: redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}
+
+  cache:
+    redis:
+      quizzes-cache:
+        value-type: tech.arhr.quingo.dto.quiz.QuizDto
+        expire-after-write: 15m
+      catalog-search-cache:
+        value-type: tech.arhr.quingo.dto.catalog.CatalogPageDto
+        expire-after-write: 15s
+      catalog-item-cache:
+        value-type: tech.arhr.quingo.dto.catalog.CatalogItemDto
+        expire-after-write: 15m
+
   hibernate-orm:
     database:
         generation: validate

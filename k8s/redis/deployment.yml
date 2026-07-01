@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-redis
+  namespace: quingo-app
+  labels:
+    app: main-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-redis
+  template:
+    metadata:
+      labels:
+        app: main-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:8.6-alpine
+          args:
+            - "redis-server"
+            - "--maxmemory"
+            - "256mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: [ "sh", "-c", "redis-cli ping | grep -q PONG" ]
+            initialDelaySeconds: 5
+            periodSeconds: 10

@@ -1,9 +1,11 @@
 package tech.arhr.quingo.service
 
+import io.quarkus.cache.CacheKey
+import io.quarkus.cache.CacheResult
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
-import tech.arhr.quingo.dto.pagination.PageDto
 import tech.arhr.quingo.dto.catalog.CatalogItemDto
+import tech.arhr.quingo.dto.catalog.CatalogPageDto
 import tech.arhr.quingo.dto.quiz.Visibility
 import tech.arhr.quingo.exceptions.EntityNotFoundException
 import tech.arhr.quingo.persistence.entity.QuizEntity
@@ -16,7 +18,8 @@ class CatalogServiceImpl(
     private val quizRepository: QuizRepository,
 ) : CatalogService {
 
-    override fun search(query: String?, page: Int?, size: Int?): PageDto<CatalogItemDto> {
+    @CacheResult(cacheName = "catalog-search-cache")
+    override fun search(query: String?, page: Int?, size: Int?): CatalogPageDto {
         val pageIndex = (page ?: 0).coerceAtLeast(0)
         val pageSize = (size ?: 20).coerceIn(1, 100)
 
@@ -24,7 +27,7 @@ class CatalogServiceImpl(
         val items = quizRepository.searchCatalog(query, pageIndex, pageSize).map { it.toCatalogItem() }
         val totalPages = ((total + pageSize - 1) / pageSize).toInt()
 
-        return PageDto(items, pageIndex, pageSize, total, totalPages)
+        return CatalogPageDto(items, pageIndex, pageSize, total, totalPages)
     }
 
     private fun QuizEntity.toCatalogItem(): CatalogItemDto {
@@ -40,7 +43,8 @@ class CatalogServiceImpl(
         )
     }
 
-    override fun getById(id: UUID): CatalogItemDto {
+    @CacheResult(cacheName = "catalog-item-cache")
+    override fun getById(@CacheKey id: UUID): CatalogItemDto {
         val quiz = quizRepository.findById(id)
         if (quiz == null || quiz.visibility != Visibility.PUBLIC || quiz.snapshot == null) {
             throw EntityNotFoundException("Quiz")
